@@ -1,12 +1,11 @@
+# spell-checker: disable
 """
 smart_pantry.py
-
 A Streamlit app to manage pantry items:
 - Add products with expiry dates
 - Track days left until expiration
 - Save data in a CSV file
-
-Date: 19/10/2025
+Date: 22/10/2025
 """
 
 from datetime import datetime  # For working with dates and calculating days left
@@ -33,22 +32,19 @@ st.subheader(
 def load_data():
     """
     Load existing pantry data from 'pantry_data.csv'.
-
     Returns:
-        pd.DataFrame: DataFrame with columns ['Product', 'Expiry Date', 'Days Left']
+        pd.DataFrame: DataFrame with columns ['Product', 'Expiry Date', 'Category']
                     or empty DataFrame if file not found.
     """
     try:
-        # Try to read existing CSV file
-        df = pd.read_csv("the_app/data/pantry_data.csv")
+        # Try to read existing xlsx file
+        df = pd.read_excel("the_app/data/pantry_data.xlsx")
         # Convert 'Expiry Date' column to datetime type
-        df["Expiry Date"] = pd.to_datetime(
-            df["Expiry Date"], errors="coerce", infer_datetime_format=True
-        )
+        df["Expiry Date"] = pd.to_datetime(df["Expiry Date"], errors="coerce")
         return df
     except FileNotFoundError:
         # If no file found, return empty DataFrame with correct column names
-        return pd.DataFrame(columns=["Product", "Expiry Date", "Days Left"])
+        return pd.DataFrame(columns=["Product", "Expiry Date", "Category"])
 
 
 # Load data when the app starts
@@ -58,6 +54,27 @@ data = load_data()
 st.write("### ➕ Add a new product")
 # Input fields for product name and expiry date
 product = st.text_input("Product name:")
+category = st.selectbox(
+    "Category:",
+    [
+        "Uncategorized",
+        "Bakery",
+        "Fruits",
+        "Vegetables",
+        "Meat",
+        "Seafood",
+        "Dairy",
+        "Protein",
+        "Condiments",
+        "Grains",
+        "Snacks",
+        "Beverages",
+        "Frozen Foods",
+        "Canned Goods",
+        "Spices & Seasonings",
+        "Drinks",
+    ],
+)
 expiry = st.date_input("Expiry date:")
 
 # When user clicks 'Save product' button
@@ -68,13 +85,19 @@ if st.button("Save product"):
         # Calculate days left until expiry
         days_left = (expiry - today).days
         # Create a new row with the entered data
-        new_row = {"Product": product, "Expiry Date": expiry, "Days Left": days_left}
+        new_row = {
+            "Product": product,
+            "Category": category,
+            "Expiry Date": expiry,
+            "Days Left": days_left,
+        }
         # Add the new row to the existing data
         data = pd.concat([data, pd.DataFrame([new_row])], ignore_index=True)
-        # Save updated data to CSV file (persistent storage)
-        data.to_csv("the_app/data/pantry_data.csv", index=False)
+        # Save updated data to excel file (persistent storage)
+        data.to_excel("the_app/data/pantry_data.xlsx", index=False)
+        st.cache_data.clear()  # Clear cache so the table refreshes
         # Display success message
-        st.success(f"✅ {product} added successfully!")
+        st.success(f"✅ {product} added and saved successfully!")
     else:
         # Show warning if product name is empty
         st.warning("Please enter a product name.")
@@ -92,3 +115,47 @@ if not data.empty:
     # Calculate days left safely
     today = pd.Timestamp(datetime.now().date())
     data["Days Left"] = (data["Expiry Date"] - today).dt.days
+
+    # ---------- Display Data ----------
+
+st.write("### 🧾 Pantry Items List")
+
+if not data.empty:
+    data = data.sort_values("Expiry Date")
+
+    # ---------- Alert System ----------
+    today = pd.Timestamp(datetime.now().date())
+    data["Days Left"] = (data["Expiry Date"] - today).dt.days
+
+    expired = data[data["Days Left"] < 0]
+    expiring_soon = data[(data["Days Left"] >= 0) & (data["Days Left"] <= 3)]
+
+    # Display alerts first
+    if not expired.empty:
+        st.error("⚠️ Some products have expired:")
+        st.table(expired[["Product", "Expiry Date", "Days Left"]])
+
+    if not expiring_soon.empty:
+        st.warning("⏰ Some products are expiring soon:")
+        st.table(expiring_soon[["Product", "Expiry Date", "Days Left"]])
+
+    # Then show the full list of products
+
+    def color_days(val):
+        """Return a background color based on days left."""
+        if val < 0:
+            color = "#ff4d4d"  # red (expired)
+        elif val <= 3:
+            color = "#ffcc00"  # yellow (expiring soon)
+        else:
+            color = "#85e085"  # green (safe)
+        return f"background-color: {color}; color: black;"
+
+    styled_data = data.reset_index(drop=True).style.applymap(
+        color_days, subset=["Days Left"]
+    )
+    st.write("### 🧾 Pantry Items List")
+    st.dataframe(styled_data)
+    # st.dataframe(data.reset_index(drop=True))
+else:
+    st.info("No products added yet. Use the form above to add one.")
