@@ -1,72 +1,94 @@
-🧭 Group Norms
+# 🧭 Group Norms
 
-These norms ensure smooth communication, clear responsibilities, and respectful teamwork throughout our project.
+These norms ensure smooth communication, clear responsibilities,  
+and respectful teamwork throughout our project.
 
-🗣️ 1. Communication
+---
 
-Primary Channel:
-Use one main platform for all project discussions (e.g., Viber, Slack, Discord, or a Messenger group) to prevent lost messages.
+## 🗣️ 1. Communication
 
-Response Time:
-Everyone should check and reply to messages within 12–24 hours on weekdays.
+**Primary Channel:**  
+Use one main platform for all project discussions  
+(e.g., Viber, Slack, Discord, or Messenger) to prevent lost messages.
 
-🧑‍💻 2. Meetings
+**Response Time:**  
+Everyone should check and reply to messages within  
+**12–24 hours on weekdays**.
 
-Regular Check-ins:
-Hold two short meetings per week:
+---
 
-One to plan weekly tasks.
+## 🧑‍💻 2. Meetings
 
-One to review progress and solve problems.
+**Regular Check-ins:**  
+Hold **two short meetings per week**:  
 
-Have an Agenda:
-Before each meeting, the meeting leader should prepare 2–3 bullet points to keep discussions focused.
+- One to plan weekly tasks.  
+- One to review progress and solve problems.  
 
-End with Action Items:
-Conclude each meeting by clearly stating who is responsible for what and the corresponding deadlines.
+**Have an Agenda:**  
+Before each meeting, the meeting leader should prepare  
+**2–3 bullet points** to keep discussions focused.
 
-🧩 3. Task Management & Workload
+**End with Action Items:**  
+Conclude each meeting by clearly stating  
+who is responsible for what and the corresponding deadlines.
 
-Use a Task Board:
-Use a simple tool like Trello, Asana, or a shared Google Sheet with columns such as To Do, In Progress, and Done.
+---
 
-Break Down Tasks:
-Avoid big, vague tasks like “Build the app.” Instead, split them into smaller ones such as:
+## 🧩 3. Task Management & Workload
 
-“Load CSV data”
+**Use a Task Board:**  
+Use a simple tool like **Trello**, **Asana**, or a shared **Google Sheet**  
+with columns such as `To Do`, `In Progress`, and `Done`.
 
-“Create function to filter recipes”
+**Break Down Tasks:**  
+Avoid big, vague tasks like “Build the app.”  
+Instead, split them into smaller ones such as:
 
-“Add button to UI”
+- “Load CSV data”  
+- “Create function to filter recipes”  
+- “Add button to UI”
 
-Assign Owners:
-Each task must have one assigned owner to ensure clear accountability.
+**Assign Owners:**  
+Each task must have **one assigned owner** to ensure clear accountability.
 
-Be Honest About Time:
-Communicate early if you’re busy. It’s better to say “I can only work 5 hours this week” than to miss a deadline unexpectedly.
+**Be Honest About Time:**  
+Communicate early if you’re busy. It’s better to say  
+“I can only work 5 hours this week”  
+than to miss a deadline unexpectedly.
 
-💻 4. Code & Version Control
+---
 
-Use Git/GitHub from Day 1:
-Create a shared repository. Everyone should learn the basics of clone, add, commit, push, and pull.
+## 💻 4. Code & Version Control
+
+**Use Git/GitHub from Day 1:**  
+Create a shared repository. Everyone should learn the basics of  
+`clone`, `add`, `commit`, `push`, and `pull`.  
 
 Alternatively, Google Colab can be used for simpler collaboration.
 
-Coding Style:
-Use a formatter such as Black (for Python) to keep code consistent and readable.
+**Coding Style:**  
+Use a formatter such as **Black** (for Python)  
+to keep code consistent and readable.
 
-Comment Your Code:
-Write simple comments explaining why something is done, especially for complex parts of the code.
+**Comment Your Code:**  
+Write simple comments explaining **why** something is done,  
+especially for complex parts of the code.
 
-⚖️ 5. Decision-Making & Conflict Resolution
+---
 
-Discuss, Then Decide:
-For important decisions, discuss pros and cons as a team. If no consensus is reached, take a majority vote.
+## ⚖️ 5. Decision-Making & Conflict Resolution
 
-Address Problems Respectfully:
-If someone isn’t completing their work, reach out privately and kindly:
+**Discuss, Then Decide:**  
+For important decisions, discuss pros and cons as a team.  
+If no consensus is reached, take a **majority vote**.
 
-“Hey, just checking in on the ingredient parsing task. Is everything going okay?”
+**Address Problems Respectfully:**  
+If someone isn’t completing their work, reach out privately and kindly:  
 
-Assume Good Intentions:
-Always assume teammates are doing their best. Misunderstandings happen — ask questions before making accusations.
+> “Hey, just checking in on the ingredient parsing task.  
+> Is everything going okay?”
+
+**Assume Good Intentions:**  
+Always assume teammates are doing their best.  
+Misunderstandings happen — ask questions before making accusations.
