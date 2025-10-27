@@ -44,7 +44,9 @@ def load_data():
         return df
     except FileNotFoundError:
         # If no file found, return empty DataFrame with correct column names
-        return pd.DataFrame(columns=["Product", "Expiry Date", "Category"])
+        return pd.DataFrame(
+            columns=["Product", "Category", "Expiry Date", "Quantity", "Days Left"]
+        )
 
 
 # Load data when the app starts
@@ -77,6 +79,8 @@ category = st.selectbox(
 )
 expiry = st.date_input("Expiry date:")
 
+quantity = st.number_input("Quantity:", min_value=1, value=1)
+
 # When user clicks 'Save product' button
 if st.button("Save product"):
     if product:
@@ -89,6 +93,7 @@ if st.button("Save product"):
             "Product": product,
             "Category": category,
             "Expiry Date": expiry,
+            "Quantity": quantity,
             "Days Left": days_left,
         }
         # Add the new row to the existing data
@@ -144,11 +149,11 @@ if not data.empty:
     def color_days(val):
         """Return a background color based on days left."""
         if val < 0:
-            color = "#ff4d4d"  # red (expired)
+            color = "#ff0000"  # red (expired)
         elif val <= 3:
-            color = "#ffcc00"  # yellow (expiring soon)
+            color = "#ffee00"  # yellow (expiring soon)
         else:
-            color = "#85e085"  # green (safe)
+            color = "#00fb00"  # green (safe)
         return f"background-color: {color}; color: black;"
 
     styled_data = data.reset_index(drop=True).style.applymap(
