@@ -13,7 +13,6 @@ Features:
 Date: 29/10/2025
 """
 
-import base64
 import os
 import time
 from datetime import datetime
@@ -23,50 +22,6 @@ import streamlit as st
 
 # ---------- Page Setup ----------
 st.set_page_config(page_title="Smart Pantry Manager", page_icon="🧺", layout="centered")
-
-# Optional: intro demo video (replace with your file or link)
-# 🎬 --- Intro Video as a Cover Banner ---
-
-# Path to your video file
-VIDEO_PATH = "the_app/video/demo.mp4"
-
-# Convert video to base64 for autoplay + full-width styling
-with open(VIDEO_PATH, "rb") as f:
-    video_bytes = f.read()
-video_base64 = base64.b64encode(video_bytes).decode()
-
-# HTML & CSS for top banner video
-st.markdown(
-    f"""
-    <style>
-    .video-banner {{
-        position: relative;
-        width: 100%;
-        height: 260px; /* adjust height for thinner banner */
-        overflow: hidden;
-        border-radius: 0 0 25px 25px; /* curved lower edges */
-        box-shadow: 0px 3px 10px rgba(0,0,0,0.2);
-    }}
-    .video-banner video {{
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* ensures video fills like a cover photo */
-        border: none;
-    }}
-    </style>
-
-    <div class="video-banner">
-        <video autoplay muted loop controls>
-            <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
-        </video>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-#
-# st.video("the_app/video/demo.mp4", format="video/mp4", start_time=0)
-# st.caption("🎬 Demo: How Smart Pantry Manager works")
 
 
 st.title("📱 Smart Pantry Manager 📊")
