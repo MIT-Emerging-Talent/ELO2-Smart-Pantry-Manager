@@ -1,19 +1,27 @@
-# Smart Pantry Manager
-
 <!-- markdownlint-disable MD033 MD013 MD041-->
+<div align="center">
 <img width="350" height="350" alt="SPM"
      src="https://github.com/user-attachments/assets/162268b3-c81b-4454-bc3a-dbf4a801c475" />
+</div>
 <!-- markdownlint-enable MD033 MD013 MD041-->
+
+<!-- markdownlint-disable MD033 MD013-->
+<div align="center">
+
+# Smart Pantry Manager
+<!-- markdownlint-disable MD001-->
+### *making your kitchen smarter, one ingredient at a time.*
+<!-- markdownlint-enable MD001-->
+</div>
 
 Welcome to **Smart Pantry Manager** – a simple and smart web app that helps you
 **track what’s in your kitchen**, **avoid food waste**, and **find recipes** using
 what you already have.
 
 This project was created as part of the **MIT Emerging Talent Program**
-by the **ELO2 Smart Pantry Manager Team**.
 
 🔗 **Try it here:**
-👉 [Smart Pantry Manager – Live App](https://mit-emerging-talent-elo2-smart-pantr-the-appsmart-pantry-iyqurj.streamlit.app/)
+👉 [Smart Pantry Manager – Web App](https://mit-emerging-talent-elo2-smart-pantr-the-appsmart-pantry-iyqurj.streamlit.app/)
 
 ---
 
@@ -161,7 +169,3 @@ more sustainable.
 
 To make every kitchen **smarter, healthier, and more efficient** —
 helping people use what they have before it goes to waste.
-
----
-
-✨ *Smart Pantry Manager – making your kitchen smarter, one ingredient at a time.*
