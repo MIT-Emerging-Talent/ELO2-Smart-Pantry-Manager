@@ -133,7 +133,7 @@ reduces waste, and learns from user habits.
 2. **Navigate into the folder**
 
    ```bash
-   cd ELO2-Smart-Pantry-Manager
+   cd smart_pantry_manager
    ```
 
 3. **Install dependencies**
@@ -145,7 +145,7 @@ reduces waste, and learns from user habits.
 4. **Run the app**
 
    ```bash
-   streamlit run app.py
+   streamlit run the_app/smart_pantry.py
    ```
 
 Then open the local link displayed in your terminal — and enjoy your smart kitchen!
