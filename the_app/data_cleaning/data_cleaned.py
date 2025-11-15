@@ -3,7 +3,6 @@
 
 # %%
 import pandas as pd
-import numpy as np
 
 # %%
 # Load the recipe dataset
@@ -13,6 +12,7 @@ df = pd.read_csv(
 
 # %%
 df.head()
+df.info()
 
 # %%
 # Count ingredients
