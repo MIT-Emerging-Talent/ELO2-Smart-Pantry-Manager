@@ -4,11 +4,12 @@ Recipe Dataset Cleaning
 This script cleans and processes the recipe dataset, adding useful metadata columns.
 """
 
+from pathlib import Path
 import pandas as pd
 
 
 def extract_keywords(title):
-    """Extract main keywords from recipe title"""
+    """Extract main keywords from recipe title."""
     exclude = {"with", "and", "the", "for", "from", "or"}
     words = str(title).lower().split()
     keywords = [w for w in words if w not in exclude and len(w) > 3]
@@ -16,7 +17,7 @@ def extract_keywords(title):
 
 
 def is_vegetarian(ingredients_list):
-    """Check if recipe is vegetarian based on ingredients"""
+    """Check if recipe is vegetarian based on ingredients."""
     non_veg_keywords = [
         "chicken",
         "beef",
@@ -62,12 +63,12 @@ def is_vegetarian(ingredients_list):
 
 
 def main():
-    """Main function to clean recipe dataset"""
+    """Main function to clean recipe dataset."""
+    base_dir = Path(__file__).resolve().parent / "data"
+
     # Load the recipe dataset
     print("Loading recipe dataset...")
-    df = pd.read_csv(
-        r"C:\Users\User\Desktop\ELO2-Smart-Pantry-Manager\the_app\data\Recipe_Dataset.csv"
-    )
+    df = pd.read_csv(base_dir / "Recipe_Dataset.csv")
     print(f"Dataset shape: {df.shape}")
 
     # Add ingredient count
@@ -89,10 +90,6 @@ def main():
     # Identify vegetarian recipes
     print("\nIdentifying vegetarian recipes...")
     df["vegetarian"] = df["Ingredients"].apply(is_vegetarian)
-    print(
-        f"Vegetarian recipes: {df['vegetarian'].sum()} out of {len(df)} "
-        f"({df['vegetarian'].sum()/len(df)*100:.1f}%)"
-    )
 
     # Check for duplicates
     print("\nChecking for duplicates...")
@@ -108,42 +105,18 @@ def main():
     df = df.reset_index(drop=True)
     print("Index reset complete.")
 
-    # Final summary
-    print("\n" + "=" * 50)
-    print("Final Summary")
-    print("=" * 50)
-    print(f"\nFinal shape: {df.shape}")
-    print(f"\nColumn names: {df.columns.tolist()}")
-    print(f"\nData types:\n{df.dtypes}")
-    print(f"\nMissing values:\n{df.isnull().sum()}")
-    print("\nSample statistics:")
-    print(df[["ingredient_count", "instruction_steps"]].describe())
-
     # Save cleaned dataset
     print("\nSaving cleaned dataset...")
-    output_path = "cleaned_recipes.csv"
+    output_path = base_dir / "cleaned_recipes.csv"
     df.to_csv(output_path, index=False)
     print(f"Data saved to '{output_path}'")
 
-    # Load and explore pantry data
-    print("\n" + "=" * 50)
-    print("Loading pantry data...")
-    df2 = pd.read_excel(
-        r"C:\Users\User\Desktop\ELO2-Smart-Pantry-Manager\the_app\data\pantry_data.xlsx"
-    )
+    # Load pantry data
+    print("\nLoading pantry data...")
+    df2 = pd.read_excel(base_dir / "pantry_data.xlsx")
     print(f"Pantry data shape: {df2.shape}")
 
-    # Display pantry data info
-    print("\nPantry data information:")
-    df2.info()
-
-    # Show product distribution
-    print("\nProduct value counts:")
-    print(df2["Product"].value_counts())
-
-    print("\n" + "=" * 50)
-    print("Cleaning complete!")
-    print("=" * 50)
+    print("\nCleaning complete!")
 
 
 if __name__ == "__main__":
