@@ -46,7 +46,6 @@ if "Expiry Date" in pantry.columns:
 def load_recipes():
     """Load recipes from CSV and clean up column names."""
     recipe_path = os.path.join("the_app", "data", "Recipe_Dataset.csv")
-
     if not os.path.exists(recipe_path):
         st.error(
             "⚠️ No recipes file found. Please upload 'recipes.csv' to the_app/data/."
