@@ -50,7 +50,7 @@ def load_recipes():
 
     if not os.path.exists(db_path):
         st.error(
-            "⚠️ Recipes database not found. Please create Recipe_Dataset.sqlite inside the_app/data/"
+            "⚠️ Recipes database not found. Please create Recipe_Dataset.sqlite inside the_app/data/."
         )
         return pd.DataFrame(columns=["Recipe", "Ingredients", "Instructions"])
 
@@ -77,6 +77,10 @@ def load_recipes():
     )
 
     return df[["Recipe", "Ingredients", "Instructions"]]
+
+
+# ✅ Call the function to get the recipes DataFrame
+recipes = load_recipes()
 
 
 # ---------- Helper for unit conversion ----------
