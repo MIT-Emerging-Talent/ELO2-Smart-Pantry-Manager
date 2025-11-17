@@ -1,4 +1,0 @@
-pandas
-streamlit
-openpyxl
-sqlite3
