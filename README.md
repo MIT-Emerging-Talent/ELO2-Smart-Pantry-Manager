@@ -35,6 +35,7 @@ Or wanted to cook, but didn’t know what you could make with what’s left?
 * Letting you **add and track items** in your pantry 🧺
 * Showing **expiry alerts** for soon-to-expire products 🕒
 * Recommending **recipes** based on your available ingredients 🥗
+* Offering a wide **collection of recipes** so you can search for any recipe you need anytime 🔎
 
 ---
 

@@ -1,9 +1,9 @@
 # spell-checker: disable
 """
-All Recipes Page for Smart Pantry Application
+All Recipes Page for Smart Pantry Application (SQLite version)
 """
 
-import os
+import sqlite3
 
 import pandas as pd
 import streamlit as st
@@ -14,27 +14,38 @@ st.title("📜 All Recipes")
 st.caption("Browse all available recipes in the Smart Pantry system.")
 
 
-# ---------- Load recipes (CSV) ----------
+# ---------- Load recipes from SQLite ----------
 @st.cache_data
 def load_recipes():
-    """Load recipes from CSV and clean up column names."""
-    csv_path = os.path.join("the_app", "data", "Recipe_Dataset.csv")
-    df = pd.read_csv(csv_path, index_col=0)
+    """
+    Load recipes from the SQLite database and normalize column names.
+    Returns a DataFrame with columns: Recipe, Ingredients, Instructions
+    """
+    db_path = "the_app/data/Recipe_Dataset.sqlite"
+
+    # Connect to SQLite database
+    conn = sqlite3.connect(db_path)
+
+    # Load the table "recipes"
+    df = pd.read_sql_query("SELECT * FROM recipes", conn)
+
+    conn.close()
 
     # Normalize column names
     df.columns = [c.strip().lower() for c in df.columns]
 
     # Rename columns if they exist
-    if "title" in df.columns:
-        df.rename(columns={"title": "Recipe"}, inplace=True)
-    if "cleaned_ingredients" in df.columns:
-        df.rename(columns={"cleaned_ingredients": "Ingredients"}, inplace=True)
-    if "instruction" in df.columns:
-        df.rename(columns={"instruction": "Instructions"}, inplace=True)
-    elif "instructions" in df.columns:
-        df.rename(columns={"instructions": "Instructions"}, inplace=True)
+    rename_map = {
+        "title": "Recipe",
+        "cleaned_ingredients": "Ingredients",
+        "instruction": "Instructions",
+        "instructions": "Instructions",
+    }
+    df.rename(
+        columns={k: v for k, v in rename_map.items() if k in df.columns}, inplace=True
+    )
 
-    # Only return required columns
+    # Keep only required columns
     required_cols = ["Recipe", "Ingredients", "Instructions"]
     df = df[[col for col in required_cols if col in df.columns]]
 
@@ -43,6 +54,7 @@ def load_recipes():
 
 recipes = load_recipes()
 
+# ---------- Display recipes ----------
 if recipes.empty:
     st.info("No recipes found.")
 else:
