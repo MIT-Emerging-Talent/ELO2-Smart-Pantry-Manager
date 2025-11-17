@@ -4,6 +4,7 @@ Recipe Recommendation Page for Smart Pantry Application
 """
 
 import os
+import sqlite3
 
 import pandas as pd
 import streamlit as st
@@ -44,24 +45,33 @@ if "Expiry Date" in pantry.columns:
 # ---------- Load recipes ----------
 @st.cache_data
 def load_recipes():
-    """Load recipes from CSV and clean up column names."""
-    recipe_path = os.path.join("the_app", "data", "Recipe_Dataset.csv")
-    if not os.path.exists(recipe_path):
+    """Load recipes from the SQLite database and clean up column names."""
+    db_path = os.path.join("the_app", "data", "Recipe_Dataset.sqlite")
+
+    if not os.path.exists(db_path):
         st.error(
-            "⚠️ No recipes file found. Please upload 'recipes.csv' to the_app/data/."
+            "⚠️ Recipes database not found. Please create Recipe_Dataset.sqlite inside the_app/data/."
         )
         return pd.DataFrame(columns=["Recipe", "Ingredients", "Instructions"])
 
-    df = pd.read_csv(recipe_path)
+    # Connect to SQLite database
+    conn = sqlite3.connect(db_path)
+
+    # Read the 'recipes' table
+    df = pd.read_sql_query("SELECT * FROM recipes", conn)
+
+    conn.close()
 
     # Normalize columns
     df.columns = [c.strip().lower() for c in df.columns]
+
     rename_map = {
         "title": "Recipe",
         "cleaned_ingredients": "Ingredients",
         "instruction": "Instructions",
         "instructions": "Instructions",
     }
+
     df.rename(
         columns={k: v for k, v in rename_map.items() if k in df.columns}, inplace=True
     )
@@ -69,11 +79,8 @@ def load_recipes():
     return df[["Recipe", "Ingredients", "Instructions"]]
 
 
+# ✅ Call the function to get the recipes DataFrame
 recipes = load_recipes()
-
-if recipes.empty:
-    st.info("No recipes available to suggest yet.")
-    st.stop()
 
 
 # ---------- Helper for unit conversion ----------
