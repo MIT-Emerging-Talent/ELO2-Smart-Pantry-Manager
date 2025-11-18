@@ -4,7 +4,6 @@ All Recipes Page for Smart Pantry Application (SQLite version)
 """
 
 import sqlite3
-
 import pandas as pd
 import streamlit as st
 
