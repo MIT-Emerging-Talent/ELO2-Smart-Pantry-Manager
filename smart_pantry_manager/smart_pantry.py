@@ -39,8 +39,10 @@ if not username:
 st.session_state["username"] = username
 
 # Create user-specific file path
-os.makedirs("the_app/data", exist_ok=True)
-USER_FILE = f"the_app/data/pantry_{username.replace(' ', '_').lower()}.xlsx"
+os.makedirs("smart_pantry_manager/data", exist_ok=True)
+USER_FILE = (
+    f"smart_pantry_manager/data/pantry_{username.replace(' ', '_').lower()}.xlsx"
+)
 
 
 # ---------- Load Pantry ----------

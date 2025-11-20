@@ -3,7 +3,10 @@
 All Recipes Page for Smart Pantry Application (SQLite version)
 """
 
+import ast
+import os
 import sqlite3
+
 import pandas as pd
 import streamlit as st
 
@@ -20,13 +23,23 @@ def load_recipes():
     Load recipes from the SQLite database and normalize column names.
     Returns a DataFrame with columns: Recipe, Ingredients, Instructions
     """
-    db_path = "the_app/data/Recipe_Dataset.sqlite"
+    db_path = "smart_pantry_manager/data/Recipe_Dataset.sqlite"
+
+    # Check if database file exists
+    if not os.path.exists(db_path):
+        st.error(f"❌ Database file not found at: {db_path}")
+        return pd.DataFrame(columns=["Recipe", "Ingredients", "Instructions"])
 
     # Connect to SQLite database
     conn = sqlite3.connect(db_path)
 
-    # Load the table "recipes"
-    df = pd.read_sql_query("SELECT * FROM recipes", conn)
+    try:
+        # Load the table "recipes"
+        df = pd.read_sql_query("SELECT * FROM recipes", conn)
+    except Exception as e:
+        st.error(f"Error reading database: {e}")
+        conn.close()
+        return pd.DataFrame(columns=["Recipe", "Ingredients", "Instructions"])
 
     conn.close()
 
@@ -51,6 +64,24 @@ def load_recipes():
     return df
 
 
+def format_ingredients(ingredients_str):
+    """
+    Convert ingredients from string representation of list to a Python list.
+    """
+    try:
+        # Try to parse as a Python list
+        if ingredients_str.startswith("["):
+            return ast.literal_eval(ingredients_str)
+        # If it's comma-separated
+        elif "," in ingredients_str:
+            return [item.strip() for item in ingredients_str.split(",")]
+        else:
+            return [ingredients_str]
+    except:
+        # If parsing fails, return as single item list
+        return [ingredients_str]
+
+
 recipes = load_recipes()
 
 # ---------- Display recipes ----------
@@ -65,6 +96,11 @@ else:
     )
 
     for _, row in filtered.iterrows():
-        with st.expander(row["Recipe"]):
-            st.markdown(f"**🧂 Ingredients:** {row['Ingredients']}")
-            st.markdown(f"**👩‍🍳 Instructions:** {row['Instructions']}")
+        with st.expander(f"📖 {row['Recipe']}"):
+            st.markdown("**🧂 Ingredients:**")
+            ingredients_list = format_ingredients(row["Ingredients"])
+            for ingredient in ingredients_list:
+                st.write(f"• {ingredient}")
+
+            st.markdown("**👩‍🍳 Instructions:**")
+            st.write(row["Instructions"])
