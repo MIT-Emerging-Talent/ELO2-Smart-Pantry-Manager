@@ -171,10 +171,12 @@ else:
 
 # ---------- Manual Save ----------
 if st.button("🔄 Save Changes"):
-    if not data.empty:
-        # Sort by Days Left (lowest first) before saving
-        data_to_save = data.sort_values(by="Days Left", ascending=True)
-        data_to_save.to_excel(USER_FILE, index=False)
+    if "data" in globals() and not data.empty:
+        # Sort by Days Left ascending before saving
+        sorted_data = data.sort_values(by="Days Left", ascending=True)
+        # Ensure USER_FILE is defined
+        user_file = f"smart_pantry_manager/data/pantry_{username.replace(' ', '_').lower()}.xlsx"
+        sorted_data.to_excel(user_file, index=False)
         st.success("Pantry data saved successfully (sorted by expiry)!")
     else:
         st.info("No items to save.")
