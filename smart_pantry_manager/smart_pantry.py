@@ -4,14 +4,13 @@ smart_pantry.py
 Smart Pantry Web App (Home Page Only)
 
 Features:
-- Each user has a personal pantry (saved to Excel)
+- Personal pantry for each user (saved to Excel)
 - Add, edit, and track products with expiry alerts
-- Quantity + Unit input (supports numeric + count)
+- Quantity + unit input (numeric or count)
 - Small loading animation when saving
-- Optional intro demo video
-- Pantry sorted by days left
-- CI-friendly 80-char lines
-Date: 20/11/2025
+- Optional intro/demo video
+
+Date: 29/10/2025
 """
 
 import os
@@ -37,21 +36,21 @@ if not username:
 
 st.session_state["username"] = username
 
-# ---------- User-specific file ----------
+# Create user-specific file path
 os.makedirs("smart_pantry_manager/data", exist_ok=True)
-USER_FILE = (
-    f"smart_pantry_manager/data/pantry_{username.replace(' ', '_').lower()}.xlsx"
+USER_FILE = os.path.join(
+    "smart_pantry_manager", "data", f"pantry_{username.replace(' ', '_').lower()}.xlsx"
 )
 
 
 # ---------- Load Pantry ----------
 @st.cache_data
 def load_pantry(file_path):
+    """Load pantry data or create empty DataFrame."""
     try:
         df = pd.read_excel(file_path)
         df["Expiry Date"] = pd.to_datetime(df["Expiry Date"], errors="coerce")
         df["Days Left"] = (df["Expiry Date"] - datetime.now()).dt.days
-        # Auto-remove expired items
         df = df[df["Days Left"] >= 0].reset_index(drop=True)
         return df
     except FileNotFoundError:
@@ -71,7 +70,6 @@ data = load_pantry(USER_FILE)
 
 # ---------- Add New Product ----------
 st.header("➕ Add a New Product")
-
 product = st.text_input("Product name:")
 category = st.selectbox(
     "Category:",
@@ -101,7 +99,7 @@ expiry = st.date_input("Expiry date:")
 if st.button("💾 Save product"):
     if product:
         with st.spinner("💾 Saving product... please wait..."):
-            time.sleep(2)
+            time.sleep(1)
             today = datetime.now().date()
             days_left = (expiry - today).days
             new_row = {
@@ -124,15 +122,12 @@ if not data.empty:
     data["Expiry Date"] = pd.to_datetime(data["Expiry Date"], errors="coerce")
     today = pd.Timestamp(datetime.now().date())
     data["Days Left"] = (data["Expiry Date"] - today).dt.days
-    # Sort by Days Left ascending
-    data = data.sort_values(by="Days Left")
 
 # ---------- Alerts ----------
 st.header("⚠️ Expiry Alerts")
 if not data.empty:
     expired = data[data["Days Left"] < 0]
     expiring_soon = data[(data["Days Left"] >= 0) & (data["Days Left"] <= 3)]
-
     if not expired.empty:
         st.error("❌ Some products have expired:")
         st.table(expired[["Product", "Expiry Date", "Days Left"]])
@@ -155,9 +150,9 @@ def color_days(val):
 
 
 if not data.empty:
-    styled_data = data.reset_index(drop=True).style.applymap(
-        color_days, subset=["Days Left"]
-    )
+    # Sort by Days Left ascending
+    data_sorted = data.sort_values("Days Left").reset_index(drop=True)
+    styled_data = data_sorted.style.applymap(color_days, subset=["Days Left"])
     st.dataframe(styled_data, use_container_width=True)
 else:
     st.info("Your pantry is empty. Add your first product above!")
