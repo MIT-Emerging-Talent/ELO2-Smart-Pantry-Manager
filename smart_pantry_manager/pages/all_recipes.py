@@ -75,10 +75,13 @@ for _, row in recipes.iterrows():
             st.markdown(f"**Diet Type:** {diet}")
         with col2:
             st.markdown("**🧂 Ingredients:**")
+            # Parse ingredients safely
             ing_list = parse_ingredients(row.get("Ingredients", ""))
-            for ing in ing_list[:10]:
-                st.write(f"• {ing}")
-            if len(ing_list) > 10:
-                st.write(f"*...and {len(ing_list) - 10} more*")
+            if ing_list:
+                for ing in ing_list:
+                    st.write(f"• {ing}")
+            else:
+                st.write("No ingredient data available.")
             st.markdown("**👩‍🍳 Instructions:**")
-            st.write(str(row.get("Instructions", "No instructions available.")))
+            # Show full instructions
+        st.write(str(row.get("Instructions", "No instructions available.")))
