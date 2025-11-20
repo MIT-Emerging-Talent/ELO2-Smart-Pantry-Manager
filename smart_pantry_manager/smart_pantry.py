@@ -9,8 +9,9 @@ Features:
 - Quantity + Unit input (supports numeric + count)
 - Small loading animation when saving
 - Optional intro demo video
-
-Date: 29/10/2025
+- Pantry sorted by days left
+- CI-friendly 80-char lines
+Date: 20/11/2025
 """
 
 import os
@@ -23,7 +24,6 @@ import streamlit as st
 # ---------- Page Setup ----------
 st.set_page_config(page_title="Smart Pantry Manager", page_icon="🧺", layout="centered")
 
-
 st.title("📱 Smart Pantry Manager 📊")
 st.subheader("Track your pantry items and discover what you can cook 👇")
 
@@ -35,10 +35,9 @@ if not username:
     st.warning("Please enter your name to start using the app.")
     st.stop()
 
-# Store username globally for use in other pages
 st.session_state["username"] = username
 
-# Create user-specific file path
+# ---------- User-specific file ----------
 os.makedirs("smart_pantry_manager/data", exist_ok=True)
 USER_FILE = (
     f"smart_pantry_manager/data/pantry_{username.replace(' ', '_').lower()}.xlsx"
@@ -48,13 +47,11 @@ USER_FILE = (
 # ---------- Load Pantry ----------
 @st.cache_data
 def load_pantry(file_path):
-    """Load pantry data for a specific user or create an empty table."""
     try:
         df = pd.read_excel(file_path)
         df["Expiry Date"] = pd.to_datetime(df["Expiry Date"], errors="coerce")
         df["Days Left"] = (df["Expiry Date"] - datetime.now()).dt.days
-
-        # 🧹 Auto-remove expired items
+        # Auto-remove expired items
         df = df[df["Days Left"] >= 0].reset_index(drop=True)
         return df
     except FileNotFoundError:
@@ -104,7 +101,7 @@ expiry = st.date_input("Expiry date:")
 if st.button("💾 Save product"):
     if product:
         with st.spinner("💾 Saving product... please wait..."):
-            time.sleep(2)  # simulate loading
+            time.sleep(2)
             today = datetime.now().date()
             days_left = (expiry - today).days
             new_row = {
@@ -127,6 +124,8 @@ if not data.empty:
     data["Expiry Date"] = pd.to_datetime(data["Expiry Date"], errors="coerce")
     today = pd.Timestamp(datetime.now().date())
     data["Days Left"] = (data["Expiry Date"] - today).dt.days
+    # Sort by Days Left ascending
+    data = data.sort_values(by="Days Left")
 
 # ---------- Alerts ----------
 st.header("⚠️ Expiry Alerts")
@@ -137,7 +136,6 @@ if not data.empty:
     if not expired.empty:
         st.error("❌ Some products have expired:")
         st.table(expired[["Product", "Expiry Date", "Days Left"]])
-
     if not expiring_soon.empty:
         st.warning("⏰ Some products are expiring soon:")
         st.table(expiring_soon[["Product", "Expiry Date", "Days Left"]])
@@ -147,7 +145,6 @@ st.header("📦 Your Pantry Items")
 
 
 def color_days(val):
-    """Color based on days left."""
     if val < 0:
         color = "#ff4d4d"
     elif val <= 3:
