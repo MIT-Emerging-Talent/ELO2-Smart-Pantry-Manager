@@ -1,10 +1,13 @@
-# spell-checker: disable
-"""
-Recipe Recommendation Page for Smart Pantry Application
-"""
+# recommended_recipes.py
+# Optimized Recommended Recipes page with ingredient selection and diet filter
+# Date: 2025-11-20
 
+import ast
 import os
+import re
 import sqlite3
+import unicodedata
+from typing import List, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -12,159 +15,219 @@ import streamlit as st
 st.set_page_config(page_title="Recommended Recipes", page_icon="🍳", layout="wide")
 
 st.title("🍳 Recommended Recipes")
-st.caption("Discover recipes you can cook with what’s already in your pantry!")
+st.caption("Discover recipes you can cook with your selected ingredients!")
 
 # ---------- Check username ----------
 if "username" not in st.session_state or not st.session_state["username"]:
-    st.warning("Please go to the Home page and enter your username first.")
+    st.warning("Please go to Home page and enter your username first.")
     st.stop()
 
 username = st.session_state["username"]
-USER_FILE = f"the_app/data/pantry_{username.replace(' ', '_').lower()}.xlsx"
+USER_FILE = os.path.join(
+    "smart_pantry_manager", "data", f"pantry_{username.replace(' ', '_').lower()}.xlsx"
+)
 
 # ---------- Load pantry ----------
 try:
     pantry = pd.read_excel(USER_FILE)
-    pantry["Product"] = pantry["Product"].astype(str).str.lower()
+    pantry_products = sorted({p.lower().strip() for p in pantry.get("Product", [])})
 except FileNotFoundError:
-    st.info("Your pantry is empty. Please add items on the Home page.")
+    st.info("Your pantry is empty. Add items on Home page first.")
     st.stop()
 
-# ---------- Auto remove expired items ----------
-if "Expiry Date" in pantry.columns:
-    before = len(pantry)
-    pantry = pantry[
-        pd.to_datetime(pantry["Expiry Date"], errors="coerce") >= pd.Timestamp.today()
-    ]
-    if len(pantry) < before:
-        st.warning(
-            f"⏰ Removed {before - len(pantry)} expired item(s) from your pantry automatically."
-        )
+# ---------- User ingredient selection ----------
+st.sidebar.header("Select Ingredients to Use")
+selected_ingredients = st.sidebar.multiselect(
+    "Choose ingredients:", options=pantry_products, default=pantry_products
+)
+
+st.sidebar.header("Select Diet Type")
+selected_diet = st.sidebar.selectbox(
+    "Diet preference:", ["Any", "Vegan", "Vegetarian", "Non-Vegetarian"]
+)
 
 
 # ---------- Load recipes ----------
 @st.cache_data
-def load_recipes():
-    """Load recipes from the SQLite database and clean up column names."""
-    db_path = os.path.join("the_app", "data", "Recipe_Dataset.sqlite")
-
+def load_recipes() -> pd.DataFrame:
+    db_path = os.path.join("smart_pantry_manager", "data", "cleaned_data.sqlite")
     if not os.path.exists(db_path):
-        st.error(
-            "⚠️ Recipes database not found. Please create Recipe_Dataset.sqlite inside the_app/data/."
+        st.error("Recipes database not found! Place cleaned_data.sqlite in data/.")
+        return pd.DataFrame(
+            columns=["Title", "Ingredients", "Instructions", "Diet_Type"]
         )
-        return pd.DataFrame(columns=["Recipe", "Ingredients", "Instructions"])
-
-    # Connect to SQLite database
     conn = sqlite3.connect(db_path)
-
-    # Read the 'recipes' table
-    df = pd.read_sql_query("SELECT * FROM recipes", conn)
-
+    try:
+        df = pd.read_sql_query("SELECT * FROM all_recipes", conn)
+    except Exception as e:
+        conn.close()
+        st.error(f"Error loading recipes: {e}")
+        return pd.DataFrame(
+            columns=["Title", "Ingredients", "Instructions", "Diet_Type"]
+        )
     conn.close()
-
-    # Normalize columns
-    df.columns = [c.strip().lower() for c in df.columns]
-
-    rename_map = {
-        "title": "Recipe",
-        "cleaned_ingredients": "Ingredients",
-        "instruction": "Instructions",
-        "instructions": "Instructions",
-    }
-
-    df.rename(
-        columns={k: v for k, v in rename_map.items() if k in df.columns}, inplace=True
-    )
-
-    return df[["Recipe", "Ingredients", "Instructions"]]
+    for col in ["Title", "Ingredients", "Instructions", "Diet_Type"]:
+        if col not in df.columns:
+            df[col] = ""
+    return df[["Title", "Ingredients", "Instructions", "Diet_Type"]]
 
 
-# ✅ Call the function to get the recipes DataFrame
 recipes = load_recipes()
+if recipes.empty:
+    st.warning("No recipes found in the database.")
+    st.stop()
 
 
-# ---------- Helper for unit conversion ----------
-def convert_units(amount, from_unit, to_unit):
-    """Convert between basic units (g↔kg, ml↔l)."""
-    conversions = {
-        ("g", "kg"): 1 / 1000,
-        ("kg", "g"): 1000,
-        ("ml", "l"): 1 / 1000,
-        ("l", "ml"): 1000,
-    }
-    if from_unit == to_unit:
-        return amount
-    return amount * conversions.get((from_unit, to_unit), 1)
+# ---------- Utilities ----------
+def normalize_text(s: str) -> str:
+    """Normalize unicode artifacts and strip."""
+    if s is None:
+        return ""
+    s = str(s)
+    s = unicodedata.normalize("NFKC", s)
+    s = re.sub(r"[\u200b-\u200f\u2028\u2029]", "", s)
+    return s.strip()
 
 
-# ---------- Recipe matching ----------
-def check_recipe_availability(recipe_ingredients, pantry_data):
-    """Check how many ingredients from a recipe are available in the pantry."""
-    ingredients = [x.strip() for x in str(recipe_ingredients).split(",") if x.strip()]
+def parse_ingredients(ingredients_str: str) -> List[str]:
+    """Parse ingredients stored as list string or comma-separated."""
+    if pd.isna(ingredients_str):
+        return []
+    s = normalize_text(ingredients_str)
+    try:
+        if s.startswith("[") and s.endswith("]"):
+            parsed = ast.literal_eval(s)
+            if isinstance(parsed, (list, tuple)):
+                return [normalize_text(str(x)) for x in parsed if str(x).strip()]
+        if "," in s:
+            return [normalize_text(x) for x in s.split(",") if x.strip()]
+        return [s]
+    except Exception:
+        if "|" in s:
+            return [normalize_text(x) for x in s.split("|") if x.strip()]
+        if "\n" in s:
+            return [normalize_text(x) for x in s.split("\n") if x.strip()]
+        return [s]
+
+
+def clean_ingredient_name(s: str) -> str:
+    """Extract core ingredient name for matching."""
+    if not s:
+        return ""
+    s = s.lower()
+    s = re.sub(r"\([^)]*\)", "", s)
+    s = re.sub(r"\d+[\/\d\s]*\s*(cup|cups|tbsp|tsp|oz|lb|lbs|g|kg|ml|l)?", "", s)
+    s = re.sub(r"[^a-zA-Z\u00C0-\u017F\s]+", "", s)
+    s = re.sub(r"\s+", " ", s)
+    return s.strip()
+
+
+@st.cache_data
+def cached_check_availability(
+    recipe_ingredients: str, selected_tuple: Tuple[str, ...]
+) -> Tuple[float, List[str]]:
+    """Return match % and missing items for selected ingredients."""
+    ingredients = parse_ingredients(recipe_ingredients)
+    if not ingredients:
+        return 0.0, []
+
     total = len(ingredients)
     available_count = 0
     missing_items = []
+    regexes = [
+        re.compile(rf"\b{re.escape(p)}\b", flags=re.IGNORECASE) for p in selected_tuple
+    ]
 
     for item in ingredients:
-        try:
-            name_qty = item.split(":")
-            name = name_qty[0].strip().lower()
-            qty_unit = name_qty[1].strip() if len(name_qty) > 1 else ""
-            qty = float("".join(filter(str.isdigit, qty_unit)) or 0)
-            unit = "".join(filter(str.isalpha, qty_unit)) or "count"
-        except (ValueError, IndexError, TypeError):
-            name = item.lower().strip()
-            qty = 0
-            unit = "count"
-        match = pantry_data[pantry_data["Product"] == name]
-        if match.empty:
-            missing_items.append(name)
-            continue
-
-        try:
-            pantry_qty = float(match.iloc[0].get("Quantity", 0))
-            pantry_unit = match.iloc[0].get("Unit", "count")
-
-            converted_needed = convert_units(qty, unit, pantry_unit)
-            if pantry_qty >= converted_needed:
-                available_count += 1
-            else:
-                missing_items.append(name)
-
-        except (ValueError, TypeError):
-            # Catch invalid numeric or conversion issues
-            missing_items.append(name)
-
-    match_percentage = (available_count / total) * 100 if total > 0 else 0
-    return match_percentage, missing_items
+        core_name = clean_ingredient_name(item)
+        text_to_search = core_name or item
+        matched = any(rx.search(text_to_search) for rx in regexes)
+        if matched:
+            available_count += 1
+        else:
+            missing_items.append(core_name)
+    match_percent = (available_count / total) * 100 if total else 0.0
+    return round(match_percent, 1), missing_items
 
 
-# ---------- Display results ----------
-st.subheader(f"🥘 Personalized Recipe Matches for {username}")
+# ---------- Filters ----------
+st.subheader(f"🥘 Personalized Recipes for {username}")
 
+min_match = st.slider("Minimum match %:", 0, 100, 50, 5)
+max_recipes = st.number_input("Max recipes to show:", 10, 200, 20, 5)
+
+st.write("🔍 Analyzing recipes...")
+progress_bar = st.progress(0)
+status_text = st.empty()
 results = []
-for _, row in recipes.iterrows():
-    match_percent, missing = check_recipe_availability(str(row["Ingredients"]), pantry)
-    results.append(
-        {
-            "Recipe": row.get("Recipe", "Unnamed Recipe"),
-            "Match %": round(match_percent, 1),
-            "Missing": ", ".join(missing) if missing else "All available",
-            "Instructions": row.get("Instructions", ""),
-        }
-    )
+total_recipes = len(recipes)
+selected_tuple = tuple(selected_ingredients)
 
-results_df = pd.DataFrame(results).sort_values(by="Match %", ascending=False)
+for idx, (_, row) in enumerate(recipes.iterrows()):
+    progress = (idx + 1) / total_recipes
+    progress_bar.progress(progress)
+    status_text.text(f"Processing recipe {idx + 1} of {total_recipes}...")
 
+    if selected_diet != "Any" and row["Diet_Type"].strip() != selected_diet:
+        continue
+
+    ingredients_raw = row.get("Ingredients") or ""
+    match_percent, missing = cached_check_availability(ingredients_raw, selected_tuple)
+
+    if match_percent >= min_match:
+        instr = normalize_text(row.get("Instructions") or "")
+        instr_preview = instr  # show full instructions
+        diet = row.get("Diet_Type") or "Unknown"
+        results.append(
+            {
+                "Recipe": row.get("Title") or "Unnamed Recipe",
+                "Diet": diet,
+                "Match %": match_percent,
+                "Missing": ", ".join(missing[:3]) + ("..." if len(missing) > 3 else "")
+                if missing
+                else "✅ All available",
+                "Instructions": instr_preview,
+                "Ingredients": ingredients_raw,
+            }
+        )
+
+progress_bar.empty()
+status_text.empty()
+results_df = pd.DataFrame(results)
 if not results_df.empty:
+    results_df = results_df.sort_values(by="Match %", ascending=False).head(
+        int(max_recipes)
+    )
+    st.success(f"✅ Found {len(results_df)} matching recipes!")
+
     st.write("### 📋 Recipe Match Overview")
-    st.dataframe(results_df[["Recipe", "Match %", "Missing"]], use_container_width=True)
+    st.dataframe(
+        results_df[["Recipe", "Diet", "Match %", "Missing"]].reset_index(drop=True),
+        use_container_width=True,
+        hide_index=True,
+    )
 
     st.write("### 📖 Recipe Details")
     for _, row in results_df.iterrows():
-        with st.expander(f"{row['Recipe']} — {row['Match %']}% match"):
-            st.markdown(f"**✅ Available ingredients:** {row['Match %']}% match")
-            st.markdown(f"**❌ Missing ingredients:** {row['Missing']}")
-            st.markdown(f"**👩‍🍳 Instructions:** {row['Instructions']}")
+        match_color = (
+            "🟢" if row["Match %"] >= 80 else "🟡" if row["Match %"] >= 60 else "🟠"
+        )
+        with st.expander(f"{match_color} {row['Recipe']} - {row['Diet']}"):
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.markdown(f"**Match:** {row['Match %']}%")
+                st.markdown(f"**Missing:** {row['Missing']}")
+            ing_list = parse_ingredients(row["Ingredients"] or "")
+            with col2:
+                st.markdown("**🧂 Ingredients:**")
+                if ing_list:
+                    for ing in ing_list[:10]:
+                        st.write(f"• {ing}")
+                    if len(ing_list) > 10:
+                        st.write(f"*...and {len(ing_list) - 10} more*")
+                else:
+                    st.write("No ingredient data available.")
+            st.markdown("**👩‍🍳 Instructions:**")
+            st.write(row["Instructions"] or "No instructions available.")
 else:
-    st.info("No recipes could be matched with your pantry.")
+    st.info(f"No recipes found with at least {min_match}% match.")
