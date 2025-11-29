@@ -24,7 +24,10 @@ if "username" not in st.session_state or not st.session_state["username"]:
 
 username = st.session_state["username"]
 USER_FILE = os.path.join(
-    "smart_pantry_manager", "data", f"pantry_{username.replace(' ', '_').lower()}.xlsx"
+    "smart_pantry_manager",
+    "data",
+    "user_data",
+    f"pantry_{username.replace(' ', '_').lower()}.xlsx",
 )
 
 # ---------- Load pantry ----------
