@@ -35,10 +35,11 @@ Kids don’t want the same meals every day—they want variety.
 
 **Smart Pantry Manager** helps solve these everyday problems by:
 
-- Tracking items in your pantry  
-- Alerting you before products expire  
-- Suggesting recipes based on what you already have  
-- Helping you add more variety to your meals without extra effort  
+- **Tracking items** in your pantry  
+- Alerting you **before products expire**  
+- **Suggesting recipes** based on what you already have  
+- Helping you add **more variety** to your meals without extra effort
+- Offering a wide **collection of recipes** so you can search for any recipe you need anytime
 
 It works as your smart kitchen assistant — reducing waste, saving money, and simplifying cooking.
 
