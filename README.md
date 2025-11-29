@@ -21,105 +21,111 @@ what you already have.
 This project was created as part of the **MIT Emerging Talent Program**
 
 🔗 **Try it here:**
-👉 [Smart Pantry Manager – Web App](https://mit-emerging-talent-elo2-smart-pantr-the-appsmart-pantry-iyqurj.streamlit.app/)
+👉 [Smart Pantry Manager – Web App](https://smart-pantry-manager.streamlit.app/)
 
 ---
 
-## 💡 What Does the App Do?
+## 💡 Why this App?
 
-Have you ever opened your fridge and realized something expired last week?
-Or wanted to cook, but didn’t know what you could make with what’s left?
+Have you ever bought food, put it in the pantry, and then forgot about it?
+Sometimes it goes bad before you can use it. Meanwhile, some people don’t have enough to eat.
 
-**Smart Pantry Manager** helps with that by:
+With busy lives, work pressure, and rushing around, it’s hard to decide what to cook.
+Kids don’t want the same meals every day—they want variety.
 
-* Letting you **add and track items** in your pantry 🧺
-* Showing **expiry alerts** for soon-to-expire products 🕒
-* Recommending **recipes** based on your available ingredients 🥗
-* Offering a wide **collection of recipes** so you can search for any recipe you need anytime 🔎
+**Smart Pantry Manager** helps solve these everyday problems by:
+
+- **Tracking items** in your pantry  
+- Alerting you **before products expire**  
+- **Suggesting recipes** based on what you already have  
+- Helping you add **more variety** to your meals without extra effort
+- Offering a wide **collection of recipes** so you can search for any recipe you need anytime
+
+It works as your smart kitchen assistant — reducing waste, saving money, and simplifying cooking.
 
 ---
 
 ## 🧩 Project Development Stages
 
-### **Stage 1: Foundation – Adding Products & Expiry Alerts**
+### ✅ Stage 1: Adding Products & Expiry Alerts *(Completed)*
 
-**Goal:** Build the core of the app.
-**What we did:**
+- Built interface to add pantry items + expiry dates  
+- Stored pantry data in CSV  
+- Created expiry alerts  
+- Added basic UI & pantry summary
 
-* Created an easy interface to add products (name + expiry date).
-* Saved items in a CSV file.
-* Calculated how many days are left before expiry.
-* Displayed alerts for items that are about to expire.
-
-🎯 **Result:** A working base app that tracks expiry dates and sends alerts.
+🎯 **Result:** Solid foundation for tracking pantry items and preventing waste.
 
 ---
 
-### **Stage 2: Smart Suggestions – Recipe Recommendations** ✅ *(Current Stage)*
+### ✅ Stage 2: Recipe Recommendations *(Completed)*
 
-**Goal:** Help users make use of what they already have.
-**What we’re working on now:**
+- Added full recipe database  
+- Matched pantry items with recipe ingredients  
+- Displayed recipe recommendations with a clean UI  
+- Added fuzzy matching and improved ingredient mapping  
+- Integrated SQLite for storing recipes
 
-* Adding a recipe database.
-* Matching ingredients in the pantry with available recipes.
-* Displaying suggested recipes in a clean, friendly interface.
-
-🎯 **Result (in progress):** The app suggests recipes that match ingredients in the
-pantry, helping reduce food waste and encourage home cooking.
+🎯 **Result:** Smart, accurate recipe suggestions using available ingredients.
 
 ---
 
-### **Stage 3: Custom Ingredient Selection**
+### ✅ Stage 3: Custom Ingredient Selection & UI Enhancements *(Completed)*
 
-**Goal:** Give users more control over what to cook.
-**Plan:**
+- Added **“Search Recipes”** page  
+- Added **“All Recipes”** page with full list + filtering  
+- Added **manual ingredient selection**  
+- Improved layout, spacing, and readability  
+- Reorganized code structure into modules  
+- Added **loading states**, better error handling  
+- Improved pantry table formatting  
+- Updated navigation and sidebar UI
 
-* Let users manually select ingredients they want to use.
-* Show matching recipes dynamically.
-* Improve recipe layout for better user experience.
-
-🎯 **Future Result:** More personalized recipe suggestions and interaction.
-
----
-
-### **Stage 4: Healthy Eating Mode**
-
-**Goal:** Promote mindful and healthy food choices.
-**Plan:**
-
-* Add a “Healthy Recipes Only” filter.
-* Tag recipes by calorie level or nutrition type.
-* Display helpful info like “Low Fat” or “High Protein.”
-
-🎯 **Future Result:** Encourage users to make healthier cooking choices.
+🎯 **Result:** Faster, cleaner, and more user-friendly experience.
 
 ---
 
-### **Stage 5: Smart Camera & AI Features** *(Future Plan)*
+## 🔜 Stage 4: Healthy Eating Mode *(Planned)*
 
-**Goal:** Make the app more intelligent and user-friendly.
-**Plan:**
+- “Healthy Recipes Only” filter  
+- Nutrition + calorie tags  
+- Categories like *High Protein*, *Vegetarian*, *Low Fat*  
 
-* Allow users to take photos of food items instead of typing.
-* Use AI to automatically detect product names and expiry dates.
-* Save product images with their data for easier tracking.
-* Analyze user behavior and send smart reminders.
-* Sync user data to the cloud for access on multiple devices.
+---
 
-🎯 **Future Result:** A complete AI-powered kitchen assistant that saves time,
-reduces waste, and learns from user habits.
+## 🤖 Stage 5: Smart Camera & AI Features *(Future)*
+
+- Scan items with phone camera  
+- AI detection of product name + expiry date  
+- Behavioral recommendations  
+- Cloud sync & multi-device login  
 
 ---
 
 ## 🔧 Tools & Technologies
 
-| Tool                            | Purpose                                     |
-| ------------------------------- | --------------------------------------------|
-| **Python**                      | Main programming language                   |
-| **Streamlit**                   | Web app interface                           |
-| **Pandas**                      | Data management and processing              |
-| **CSV files**                   | Local storage for items and recipes         |
-| **OpenAI / Vision AI (future)** | Planned for automatic detection and AI analysis|
+| Tool | Purpose |
+|------|---------|
+| **Python** | Core logic |
+| **Streamlit** | Web app UI |
+| **Pandas** | Data processing |
+| **SQLite** | Recipe & ingredient data |
+| **CSV** | Local pantry storage |
+| **OpenAI / Vision AI** | Future AI automation |
+| **GitHub CI + Linting** | Code quality & consistency |
+
+---
+
+## 🚀 Additional Work Completed
+
+- Migrated recipes from **CSV → SQLite**  
+- Added **All Recipes** page  
+- Added **Search Recipes** page  
+- Improved ingredient parsing  
+- Added keyword search for titles + ingredients  
+- Improved recipe recommendation accuracy  
+- UI polishing across pages  
+- Bug fixes + performance improvements
 
 ---
 
@@ -157,9 +163,9 @@ Then open the local link displayed in your terminal — and enjoy your smart kit
 
 **MIT Emerging Talent – ELO2 Smart Pantry Manager Team** are:
 
-* Azza Omer
-* May Mon
-* Omnia Mustafa
+- Azza Omer
+- May Mon
+- Omnia Mustafa
   
 Built with teamwork, creativity, and a mission to make everyday life smarter and
 more sustainable.
