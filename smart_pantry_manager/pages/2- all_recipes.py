@@ -7,7 +7,7 @@ Features:
 - Display recipe list with ingredients and instructions
 - Supports search/filtering
 
-Date: 2025-11-20
+Date: 2025-11-27
 """
 
 import ast
@@ -99,17 +99,49 @@ def format_ingredients(ingredients_str: str) -> list:
 
 recipes_df = load_recipes()
 
-# ---------- Display Recipes ----------
-if recipes_df.empty:
-    st.info("No recipes found.")
+# ---------- Search with suggestions ----------
+# text input for free keywords
+search_term = st.text_input("🔍 Search for a recipe:")
+
+selected_recipe = None
+
+# build suggestion list when user types something
+if search_term:
+    suggestion_list = (
+        recipes_df[recipes_df["Recipe"].str.contains(search_term, case=False, na=False)]
+        .sort_values("Recipe")["Recipe"]
+        .tolist()
+    )
+    # Show suggestions as clickable buttons instead of selectbox
+    for recipe in suggestion_list:
+        if st.button(f"📄 {recipe}"):
+            selected_recipe = recipe
+            break  # Stop after clicking one
+
+# Filter results
+if selected_recipe:
+    filtered_df = recipes_df[recipes_df["Recipe"] == selected_recipe]
+elif search_term:
+    filtered_df = recipes_df[
+        recipes_df["Recipe"].str.contains(search_term, case=False, na=False)
+    ]
 else:
-    search_term = st.text_input("🔍 Search for a recipe:")
+    filtered_df = recipes_df
+
+# show only the selected recipe OR search results
+if selected_recipe and selected_recipe != "":
+    filtered_df = recipes_df[recipes_df["Recipe"] == selected_recipe]
+else:
     filtered_df = (
         recipes_df[recipes_df["Recipe"].str.contains(search_term, case=False, na=False)]
         if search_term
         else recipes_df
     )
 
+# ---------- Display Recipes ----------
+if filtered_df.empty:
+    st.info("No recipes found.")
+else:
     for _, row in filtered_df.iterrows():
         with st.expander(f"📖 {row['Recipe']}"):
             st.markdown("**🧂 Ingredients:**")
