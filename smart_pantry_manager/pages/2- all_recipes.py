@@ -48,6 +48,16 @@ if recipes.empty:
     st.info("No recipes found.")
     st.stop()
 
+# ---------- Search Recipes ----------
+search_query = st.text_input("🔍 Search recipes by title:", "")
+if search_query:
+    # Filter recipes where the title contains the typed text (case-insensitive)
+    recipes = recipes[recipes["Title"].str.contains(search_query, case=False, na=False)]
+
+if recipes.empty:
+    st.info("No recipes match your search.")
+    st.stop()
+
 
 # ---------- Parse Ingredients ----------
 def parse_ingredients(ingredients_str):
