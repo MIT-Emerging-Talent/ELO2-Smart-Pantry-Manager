@@ -2,6 +2,9 @@
 """
 All Recipes Page
 Shows all recipes and diet type from cleaned_data.sqlite
+Now includes:
+- Diet Type Filter
+- Pagination (20 recipes per page)
 """
 
 import ast
@@ -26,6 +29,7 @@ def load_recipes():
         return pd.DataFrame(
             columns=["Title", "Ingredients", "Instructions", "Diet_Type"]
         )
+
     conn = sqlite3.connect(DB_PATH)
     try:
         df = pd.read_sql("SELECT * FROM all_recipes", conn)
@@ -35,11 +39,13 @@ def load_recipes():
         return pd.DataFrame(
             columns=["Title", "Ingredients", "Instructions", "Diet_Type"]
         )
+
     conn.close()
-    # Ensure required columns exist
+
     for col in ["Title", "Ingredients", "Instructions", "Diet_Type"]:
         if col not in df.columns:
             df[col] = ""
+
     return df
 
 
@@ -48,15 +54,35 @@ if recipes.empty:
     st.info("No recipes found.")
     st.stop()
 
+
+# ---------------- Filter by Diet Type ----------------
+all_diets = ["All"] + sorted(list(recipes["Diet_Type"].dropna().unique()))
+selected_diet = st.selectbox("🥗 Filter by Diet Type:", all_diets)
+
+if selected_diet != "All":
+    recipes = recipes[recipes["Diet_Type"] == selected_diet]
+
+
 # ---------- Search Recipes ----------
 search_query = st.text_input("🔍 Search recipes by title:", "")
 if search_query:
-    # Filter recipes where the title contains the typed text (case-insensitive)
     recipes = recipes[recipes["Title"].str.contains(search_query, case=False, na=False)]
 
 if recipes.empty:
-    st.info("No recipes match your search.")
+    st.info("No recipes match your filters.")
     st.stop()
+
+
+# ---------- Pagination (20 per page) ----------
+RECIPES_PER_PAGE = 20
+total_pages = (len(recipes) - 1) // RECIPES_PER_PAGE + 1
+
+page = st.number_input("Page:", min_value=1, max_value=total_pages, value=1)
+
+start_idx = (page - 1) * RECIPES_PER_PAGE
+end_idx = start_idx + RECIPES_PER_PAGE
+
+recipes_page = recipes.iloc[start_idx:end_idx]
 
 
 # ---------- Parse Ingredients ----------
@@ -76,22 +102,25 @@ def parse_ingredients(ingredients_str):
 
 
 # ---------- Display Recipes ----------
-for _, row in recipes.iterrows():
+for _, row in recipes_page.iterrows():
     title = str(row.get("Title", "Unnamed Recipe"))
     diet = str(row.get("Diet_Type", "Unknown"))
+
     with st.expander(f"📖 {title} — {diet}"):
         col1, col2 = st.columns([1, 2])
+
         with col1:
             st.markdown(f"**Diet Type:** {diet}")
+
         with col2:
             st.markdown("**🧂 Ingredients:**")
-            # Parse ingredients safely
             ing_list = parse_ingredients(row.get("Ingredients", ""))
             if ing_list:
                 for ing in ing_list:
                     st.write(f"• {ing}")
             else:
                 st.write("No ingredient data available.")
+
             st.markdown("**👩‍🍳 Instructions:**")
-            # Show full instructions
+
         st.write(str(row.get("Instructions", "No instructions available.")))

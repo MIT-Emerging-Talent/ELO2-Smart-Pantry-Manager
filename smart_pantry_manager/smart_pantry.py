@@ -171,10 +171,10 @@ st.markdown("### ⚠️ Expiry Alerts")
 current_df = st.session_state["pantry_data"]  # renamed
 
 if not current_df.empty:
-    expired_items = current_df[current_df["Days Left"] < 0].copy()  # renamed
+    expired_items = current_df[current_df["Days Left"] <= 0].copy()  # renamed
     expired_items = expired_items.sort_values(by="Days Left")
     expiring_items = current_df[
-        (current_df["Days Left"] >= 0) & (current_df["Days Left"] <= 3)
+        (current_df["Days Left"] > 0) & (current_df["Days Left"] <= 5)
     ].copy()  # renamed
 
     # ---------- Expired Products ----------
