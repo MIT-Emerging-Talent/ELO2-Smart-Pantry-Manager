@@ -43,16 +43,57 @@ def style_expiring_soon(expiring_products_df):
 # ---------- Page Setup ----------
 st.set_page_config(page_title="Smart Pantry Manager", page_icon="🧺", layout="centered")
 
-st.title("📱 Smart Pantry Manager 📊")
-st.subheader("Track your pantry items and discover what you can cook 👇")
+st.markdown(
+    """
+    <h1 style='text-align:center; color:#C69B3B;'>
+        🧺 Smart Pantry Manager
+    </h1>
+    <h3 style='text-align:center; color:#E0C27B; font-weight:300;'>
+        Smart tracking, elegant design, and a pantry that always works for you ✨
+    </h3>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ---------- Auto-Switching Images on Home Page ----------
+
+img1 = "smart_pantry_manager/assets/image1.png"
+img2 = "smart_pantry_manager/assets/image2.png"
+# Make sure the folder exists
+os.makedirs("smart_pantry_manager/assets", exist_ok=True)
+
+# Create a spot on the page where the image will update
+placeholder = st.empty()
+
+# Alternate images every 3 seconds
+if "show_img1" not in st.session_state:
+    st.session_state["show_img1"] = True
+
+if st.session_state["show_img1"]:
+    placeholder.image(img1, use_container_width=True)
+    st.session_state["show_img1"] = False
+else:
+    placeholder.image(img2, use_container_width=True)
+    st.session_state["show_img1"] = True
+
+time.sleep(3)
+
 
 # ---------- Sidebar: User Profile ----------
 st.sidebar.header("👤 User Profile")
 username = st.sidebar.text_input("Enter your name or email:")
 
+# If user has NOT entered anything → show info and stop the app
 if not username:
-    st.warning("Please enter your name to start using the app.")
+    st.info(
+        "👈 Please click 'User Profile' on the left to enter your name or email to start."
+    )
     st.stop()
+
+# If user HAS entered an email → show success message
+else:
+    st.sidebar.success("You entered successfully! ✅")
+
 
 st.session_state["username"] = username
 
